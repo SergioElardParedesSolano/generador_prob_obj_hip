@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INVESTIGA PRO - Generador Inteligente de Estructuras de Investigación Científica</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Export Libraries -->
+    <!-- jsPDF & html2canvas for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col md:flex-row overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-full md:w-72 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-20 transition-all duration-300">
+        <!-- Logo & Header -->
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-microscope"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-lg tracking-tight leading-none">INVESTIGA PRO</h1>
+                    <span class="text-xs text-blue-400 font-medium">Asistente Metodológico AI</span>
+                </div>
+            </div>
+            <button id="mobileMenuToggle" class="md:hidden text-slate-400 hover:text-white">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar text-sm font-medium" id="sidebarNav">
+            <a href="#" onclick="switchModule(1)" id="nav-mod-1" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-white bg-blue-600 shadow-sm transition">
+                <i class="fa-solid fa-university w-6 text-center text-blue-200"></i>
+                <span class="ml-2">1. Datos Generales</span>
+            </a>
+            <a href="#" onclick="switchModule(2)" id="nav-mod-2" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-cubes w-6 text-center"></i>
+                <span class="ml-2">2. Variables & Dimensiones</span>
+            </a>
+            <a href="#" onclick="switchModule(3)" id="nav-mod-3" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-stethoscope w-6 text-center"></i>
+                <span class="ml-2">3. Diagnóstico de Alcance</span>
+            </a>
+            <a href="#" onclick="switchModule(4)" id="nav-mod-4" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-heading w-6 text-center"></i>
+                <span class="ml-2">4. Título de Investigación</span>
+            </a>
+            <a href="#" onclick="switchModule(5)" id="nav-mod-5" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-circle-question w-6 text-center"></i>
+                <span class="ml-2">5. Preguntas (Matriz)</span>
+            </a>
+            <a href="#" onclick="switchModule(6)" id="nav-mod-6" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-bullseye w-6 text-center"></i>
+                <span class="ml-2">6. Objetivos & Verbos</span>
+            </a>
+            <a href="#" onclick="switchModule(7)" id="nav-mod-7" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-lightbulb w-6 text-center"></i>
+                <span class="ml-2">7. Hipótesis (H1 y H0)</span>
+            </a>
+            <a href="#" onclick="switchModule(8)" id="nav-mod-8" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-table-cells w-6 text-center"></i>
+                <span class="ml-2">8. Matriz de Consistencia</span>
+            </a>
+            <a href="#" onclick="switchModule(9)" id="nav-mod-9" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-list-check w-6 text-center"></i>
+                <span class="ml-2">9. Operacionalización</span>
+            </a>
+            <a href="#" onclick="switchModule(10)" id="nav-mod-10" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-user-ninja w-6 text-center"></i>
+                <span class="ml-2 flex items-center justify-between w-full">
+                    <span>10. Auditoría Inteligente</span>
+                    <span id="auditBadge" class="hidden px-2 py-0.5 text-xs rounded-full bg-red-500 text-white">!</span>
+                </span>
+            </a>
+            <a href="#" onclick="switchModule(11)" id="nav-mod-11" class="nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition">
+                <i class="fa-solid fa-file-export w-6 text-center"></i>
+                <span class="ml-2">11. Exportar y Proyectos</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Preset Scenarios Quick Access -->
+        <div class="p-3 border-t border-slate-800 bg-slate-950/50">
+            <label class="text-xs font-semibold uppercase text-slate-400 tracking-wider block mb-2">Escenarios de Prueba:</label>
+            <select id="presetSelector" onchange="loadPreset(this.value)" class="w-full text-xs bg-slate-800 border border-slate-700 text-slate-200 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
+                <option value="">-- Cargar Plantilla --</option>
+                <option value="correlational_unasam">Correlacional (UNASAM - Admin & Desempeño)</option>
+                <option value="causal_business">Explicativo/Causal (Marketing & Ventas)</option>
+                <option value="descriptive_health">Descriptivo (Clima Org. en Salud)</option>
+                <option value="unequal_dims">Dimensiones Asimétricas (Educación)</option>
+            </select>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col h-full bg-slate-50 overflow-hidden">
+        
+        <!-- Top App Bar / Progress Bar -->
+        <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm z-10">
+            <div class="flex items-center space-x-4">
+                <h2 id="currentModuleName" class="text-lg font-bold text-slate-800">1. Datos Generales de la Investigación</h2>
+                <span id="unasamBadge" class="hidden text-xs bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full border border-amber-300">
+                    <i class="fa-solid fa-graduation-cap mr-1"></i> Formato UNASAM Activo
+                </span>
+            </div>
+
+            <!-- Global Actions & UNASAM Toggle -->
+            <div class="flex items-center space-x-3">
+                <label class="flex items-center cursor-pointer text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 transition">
+                    <input type="checkbox" id="unasamToggle" onchange="toggleUnasamMode(this.checked)" class="sr-only peer">
+                    <div class="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 relative"></div>
+                    <span class="ml-2">Modalidad UNASAM</span>
+                </label>
+
+                <button onclick="saveProject()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white font-medium px-3 py-1.5 rounded-lg flex items-center space-x-1 shadow-sm transition">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span class="hidden sm:inline">Guardar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Progress Bar -->
+        <div class="w-full bg-slate-200 h-1.5">
+            <div id="progressBar" class="bg-blue-600 h-1.5 transition-all duration-300" style="width: 9.09%;"></div>
+        </div>
+
+        <!-- MODULE CONTAINERS (SLOTS) -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+
+            <!-- MODULE 1: DATOS GENERALES -->
+            <section id="module-1" class="module-content space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-6">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-university text-blue-600 mr-2"></i> Institución y Contexto Institucional
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Configure la información institucional y la delimitación espacial/temporal de su proyecto.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Investigador(a)</label>
+                            <input type="text" id="m1_investigador" value="Juan Pérez Rosales" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Universidad</label>
+                            <input type="text" id="m1_universidad" value="Universidad Nacional Santiago Antúnez de Mayolo" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Facultad</label>
+                            <input type="text" id="m1_facultad" value="Ciencias de la Administración y Contabilidad" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Escuela Profesional</label>
+                            <input type="text" id="m1_escuela" value="Administración" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Línea de Investigación</label>
+                            <input type="text" id="m1_linea" value="Gestión Empresarial y Desarrollo Organizacional" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Año de Investigación</label>
+                            <input type="text" id="m1_anio" value="2026" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-6">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-map-location-dot text-blue-600 mr-2"></i> Delimitación del Sujeto y Ámbito
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Institución / Empresa Objeto de Estudio</label>
+                            <input type="text" id="m1_institucion" value="Municipalidad Provincial de Huaraz" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Clínica San Pablo, Empresa Y, Colegio Z">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Población / Unidad de Análisis</label>
+                            <input type="text" id="m1_poblacion" value="Trabajadores administrativos" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Docentes de primaria, Colaboradores, Pacientes">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Lugar / Ubicación Geográfica</label>
+                            <input type="text" id="m1_lugar" value="Huaraz" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Distrito de Independencia, Lima, Chimbote">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button onclick="switchModule(2)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Registro de Variables <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 2: REGISTRO DE VARIABLES -->
+            <section id="module-2" class="module-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- VARIABLE 1 CARD -->
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded">VARIABLE 1</span>
+                                <span class="text-xs text-slate-400">Variable Independiente / Principal</span>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de la Variable 1 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="v1_name" value="Gestión administrativa" oninput="triggerAutoUpdates()" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Definición Conceptual (Opcional)</label>
+                                    <textarea id="v1_def_conceptual" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Conjunto de funciones de planificación, organización, dirección y control..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Definición Operacional (Opcional)</label>
+                                    <textarea id="v1_def_operacional" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Medida mediante un cuestionario ordinal de 20 ítems..."></textarea>
+                                </div>
+
+                                <!-- Dynamic Dimensions V1 -->
+                                <div class="pt-2">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Dimensiones de Variable 1</label>
+                                        <button onclick="addDimension(1)" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold px-2.5 py-1 rounded border border-blue-200 transition">
+                                            <i class="fa-solid fa-plus mr-1"></i> Agregar Dimensión
+                                        </button>
+                                    </div>
+                                    <div id="v1_dimensions_container" class="space-y-3">
+                                        <!-- Dynamically generated dimensions go here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VARIABLE 2 CARD -->
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded">VARIABLE 2</span>
+                                <span class="text-xs text-slate-400">Variable Dependiente / Secundaria</span>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de la Variable 2 (Opcional para descriptivo simple)</label>
+                                    <input type="text" id="v2_name" value="Desempeño laboral" oninput="triggerAutoUpdates()" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Definición Conceptual (Opcional)</label>
+                                    <textarea id="v2_def_conceptual" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Capacidad de rendimiento del trabajador para alcanzar metas..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Definición Operacional (Opcional)</label>
+                                    <textarea id="v2_def_operacional" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Evaluado mediante escala de Likert por rendimiento..."></textarea>
+                                </div>
+
+                                <!-- Dynamic Dimensions V2 -->
+                                <div class="pt-2">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Dimensiones de Variable 2</label>
+                                        <button onclick="addDimension(2)" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold px-2.5 py-1 rounded border border-indigo-200 transition">
+                                            <i class="fa-solid fa-plus mr-1"></i> Agregar Dimensión
+                                        </button>
+                                    </div>
+                                    <div id="v2_dimensions_container" class="space-y-3">
+                                        <!-- Dynamically generated dimensions go here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(3)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Diagnóstico de Alcance <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 3: DIAGNÓSTICO METODOLÓGICO -->
+            <section id="module-3" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-stethoscope text-blue-600 mr-2"></i> Asistente de Diagnóstico Metodológico
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Responda a las preguntas guía para determinar el alcance científico exacto de su investigación.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <label class="block text-sm font-semibold text-slate-800 mb-2">1. ¿Cuál es la intención primaria principal de su estudio?</label>
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 bg-white rounded border border-slate-200 hover:border-blue-300">
+                                    <input type="radio" name="diag_q1" value="descriptive" onchange="runDiagnostic()" class="text-blue-600">
+                                    <span>Solo medir/caracterizar las variables por separado sin buscar asociaciones estadísticas formalizadas.</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 bg-white rounded border border-slate-200 hover:border-blue-300">
+                                    <input type="radio" name="diag_q1" value="correlational" checked onchange="runDiagnostic()" class="text-blue-600">
+                                    <span>Determinar si existe grado de asociación/correlación estadística entre dos o más variables.</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 bg-white rounded border border-slate-200 hover:border-blue-300">
+                                    <input type="radio" name="diag_q1" value="causal" onchange="runDiagnostic()" class="text-blue-600">
+                                    <span>Explicar la causa o el efecto de una variable sobre otra (relación causa-efecto / influencia).</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 bg-white rounded border border-slate-200 hover:border-blue-300">
+                                    <input type="radio" name="diag_q1" value="comparative" onchange="runDiagnostic()" class="text-blue-600">
+                                    <span>Comparar una variable en dos o más grupos o poblaciones distintas.</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <label class="block text-sm font-semibold text-slate-800 mb-2">2. Rigor de Diseño Causal (Evaluación de Advertencia Metodológica):</label>
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="diag_exp" onchange="runDiagnostic()" class="rounded text-blue-600">
+                                    <span>¿Existe manipulación experimental intencionada de la Variable Independiente?</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="diag_temp" onchange="runDiagnostic()" class="rounded text-blue-600">
+                                    <span>¿La recolección de datos es longitudinal (secuencia temporal clara causa &rarr; efecto)?</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="diag_control" onchange="runDiagnostic()" class="rounded text-blue-600">
+                                    <span>¿Existe control estricto de variables intervinientes / extrañas?</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAGNOSTIC RESULT BOX -->
+                <div id="diagnosticResultCard" class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                    <!-- Dynamic Diagnostic Output -->
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(2)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(4)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Título de Investigación <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 4: GENERADOR DE TÍTULO -->
+            <section id="module-4" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-heading text-blue-600 mr-2"></i> Propuestas Automáticas de Título
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Seleccione una alternativa basada en el alcance o personalice su propio título final.</p>
+                    </div>
+
+                    <div id="titleAlternativesContainer" class="space-y-4 mb-6">
+                        <!-- Dynamically populated title cards -->
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Título Seleccionado / Edición Manual Final:</label>
+                        <textarea id="finalTitleInput" rows="3" oninput="saveManualTitle()" class="w-full text-base font-semibold p-3 border-2 border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50/20 text-slate-900"></textarea>
+                        
+                        <div id="unasamTitleNotice" class="hidden mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                            <i class="fa-solid fa-triangle-exclamation mr-1 font-bold"></i> <strong>Reglamento UNASAM:</strong> El título definitivo en portada debe ir completamente en <strong>MAYÚSCULAS</strong>, centrado, sin abreviaturas, y ser conciso (máximo 20 palabras sugeridas).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(3)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(5)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Preguntas de Investigación <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 5: PREGUNTAS DE INVESTIGACIÓN (MATRIZ DE DIMENSIONES) -->
+            <section id="module-5" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-circle-question text-blue-600 mr-2"></i> Pregunta General y Mapeo Específico
+                        </h3>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 mb-6">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pregunta General Formulada:</label>
+                        <p id="generalQuestionDisplay" class="text-base font-semibold text-slate-900"></p>
+                    </div>
+
+                    <!-- MATRIX MAPPER FOR SPECIFIC QUESTIONS -->
+                    <div class="border-t border-slate-100 pt-4">
+                        <h4 class="text-sm font-bold text-slate-800 mb-2">Matriz de Relaciones para Preguntas Específicas</h4>
+                        <p class="text-xs text-slate-500 mb-4">Seleccione la correspondencia de dimensiones para estructurar cada pregunta específica de forma metodológicamente rigurosa:</p>
+
+                        <div id="specificQuestionsMatrix" class="space-y-3">
+                            <!-- Matrix rows generated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(4)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(6)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Objetivos & Verbos <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 6: GENERADOR DE OBJETIVOS -->
+            <section id="module-6" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-bullseye text-blue-600 mr-2"></i> Formulador de Objetivos de Investigación
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Los objetivos derivan directamente de las preguntas utilizando verbos taxonómicos de investigación.</p>
+                    </div>
+
+                    <!-- General Objective -->
+                    <div class="mb-6 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                        <label class="block text-xs font-bold uppercase text-blue-900 mb-2">Objetivo General</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <select id="verb_general" onchange="generateObjectives()" class="text-xs font-semibold bg-white border border-blue-300 rounded-lg p-2 text-blue-800 focus:ring-2 focus:ring-blue-500">
+                                <option value="Determinar">Determinar</option>
+                                <option value="Analizar">Analizar</option>
+                                <option value="Evaluar">Evaluar</option>
+                                <option value="Explicar">Explicar</option>
+                                <option value="Establecer">Establecer</option>
+                                <option value="Describir">Describir</option>
+                            </select>
+                            <input type="text" id="obj_general_text" class="flex-1 text-sm font-medium p-2 border border-slate-300 rounded-lg outline-none bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Specific Objectives List -->
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-bold text-slate-800">Objetivos Específicos Correspondientes</h4>
+                        <div id="specificObjectivesContainer" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(5)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(7)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Hipótesis (H1 y H0) <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 7: GENERADOR DE HIPÓTESIS -->
+            <section id="module-7" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-lightbulb text-blue-600 mr-2"></i> Formulación de Hipótesis (Alternativa H1 y Nula H0)
+                        </h3>
+                    </div>
+
+                    <div id="hypothesesNotice" class="mb-4"></div>
+
+                    <!-- General Hypotheses -->
+                    <div class="space-y-4 mb-6">
+                        <div class="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200">
+                            <span class="text-xs font-bold uppercase text-emerald-800 tracking-wider">Hipótesis General Alternativa (H1)</span>
+                            <textarea id="h1_general" rows="2" class="w-full text-sm font-semibold p-2.5 mt-2 border border-emerald-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                        </div>
+
+                        <div class="p-4 bg-slate-100 rounded-xl border border-slate-300">
+                            <span class="text-xs font-bold uppercase text-slate-700 tracking-wider">Hipótesis General Nula (H0)</span>
+                            <textarea id="h0_general" rows="2" class="w-full text-sm font-medium p-2.5 mt-2 border border-slate-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-slate-500"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Specific Hypotheses -->
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800 mb-3">Hipótesis Específicas ($H_1$)</h4>
+                        <div id="specificHypothesesContainer" class="space-y-3">
+                            <!-- Dynamically loaded -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(6)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(8)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Matriz de Consistencia <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 8: MATRIZ DE CONSISTENCIA -->
+            <section id="module-8" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 mb-4 gap-2">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-table-cells text-blue-600 mr-2"></i> Matriz de Consistencia Metodológica
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Matriz lógica integrada para verificación instantánea de correspondencia científica.</p>
+                        </div>
+                        <button onclick="exportMatrixToExcel()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-2 rounded-lg flex items-center shadow transition">
+                            <i class="fa-solid fa-file-excel mr-1.5"></i> Exportar Matriz (Excel)
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-lg">
+                        <table id="matrizConsistenciaTable" class="w-full text-xs text-left text-slate-700 border-collapse min-w-[900px]">
+                            <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider font-semibold">
+                                <tr>
+                                    <th class="p-3 border-r border-slate-800 w-1/5">Problemas / Preguntas</th>
+                                    <th class="p-3 border-r border-slate-800 w-1/5">Objetivos</th>
+                                    <th class="p-3 border-r border-slate-800 w-1/5">Hipótesis</th>
+                                    <th class="p-3 border-r border-slate-800 w-1/5">Variables & Dimensiones</th>
+                                    <th class="p-3 w-1/5">Metodología</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrizTbody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(7)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(9)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Operacionalización <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 9: OPERACIONALIZACIÓN DE VARIABLES -->
+            <section id="module-9" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-4 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Estructura de Operacionalización de Variables
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">Especifique o refine los indicadores e instrumentos para cada dimensión.</p>
+                        </div>
+                    </div>
+
+                    <div id="operacionalizacionTablesContainer" class="space-y-6">
+                        <!-- Generates editable tables for V1 and V2 -->
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(8)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(10)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Auditoría Inteligente <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 10: VALIDACIÓN METODOLÓGICA INTELIGENTE -->
+            <section id="module-10" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-user-ninja text-blue-600 mr-2"></i> Auditor Metodológico Automatizado
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">Evaluación de 8 criterios de rigor epistemológico y coherencia interna.</p>
+                        </div>
+                        <button onclick="runAudit()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg flex items-center shadow transition">
+                            <i class="fa-solid fa-rotate mr-1.5"></i> Re-evaluar Investigación
+                        </button>
+                    </div>
+
+                    <!-- Audit Summary Stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-emerald-800 uppercase block">Correcto</span>
+                                <span id="auditPassCount" class="text-2xl font-bold text-emerald-900">0</span>
+                            </div>
+                            <i class="fa-solid fa-circle-check text-2xl text-emerald-500"></i>
+                        </div>
+                        <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-amber-800 uppercase block">Requiere Revisión</span>
+                                <span id="auditWarnCount" class="text-2xl font-bold text-amber-900">0</span>
+                            </div>
+                            <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-500"></i>
+                        </div>
+                        <div class="p-4 bg-red-50 rounded-xl border border-red-200 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-red-800 uppercase block">Inconsistente</span>
+                                <span id="auditFailCount" class="text-2xl font-bold text-red-900">0</span>
+                            </div>
+                            <i class="fa-solid fa-circle-xmark text-2xl text-red-500"></i>
+                        </div>
+                    </div>
+
+                    <!-- Audit Checklist Results -->
+                    <div id="auditResultsContainer" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button onclick="switchModule(9)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <button onclick="switchModule(11)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg flex items-center shadow-md transition">
+                        Siguiente: Exportar & Proyectos <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MODULE 11: RESULTADOS, EXPORTACIÓN Y PROYECTOS -->
+            <section id="module-11" class="module-content hidden space-y-6">
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                    <div class="border-b border-slate-100 pb-4 mb-6 flex flex-wrap justify-between items-center gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-file-export text-blue-600 mr-2"></i> Resumen de Investigación y Exportaciones
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">Descargue su matriz de investigación completa o exporte a formatos estándar.</p>
+                        </div>
+
+                        <!-- Export Buttons Toolbar -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="exportToWord()" class="text-xs bg-blue-700 hover:bg-blue-800 text-white font-semibold px-3 py-2 rounded-lg flex items-center shadow transition">
+                                <i class="fa-solid fa-file-word mr-1.5"></i> Word (.doc)
+                            </button>
+                            <button onclick="exportToPDF()" class="text-xs bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-2 rounded-lg flex items-center shadow transition">
+                                <i class="fa-solid fa-file-pdf mr-1.5"></i> PDF
+                            </button>
+                            <button onclick="exportMatrixToExcel()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-2 rounded-lg flex items-center shadow transition">
+                                <i class="fa-solid fa-file-excel mr-1.5"></i> Excel (.xlsx)
+                            </button>
+                            <button onclick="copyFullReport()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white font-semibold px-3 py-2 rounded-lg flex items-center shadow transition">
+                                <i class="fa-solid fa-copy mr-1.5"></i> Copiar Texto
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- EXPORTABLE FULL REPORT CONTAINER -->
+                    <div id="exportableReportContainer" class="p-6 bg-white border border-slate-200 rounded-xl space-y-6 font-sans">
+                        
+                        <!-- Header Document -->
+                        <div class="text-center border-b pb-4">
+                            <h2 id="report_univ" class="text-base font-bold uppercase tracking-wide text-slate-900"></h2>
+                            <h3 id="report_facultad" class="text-xs font-semibold uppercase text-slate-600"></h3>
+                            <h4 id="report_escuela" class="text-xs font-medium text-slate-500 mb-2"></h4>
+                            <div class="mt-4 p-3 bg-slate-50 border rounded-lg">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-widest">TÍTULO DE INVESTIGACIÓN</span>
+                                <h1 id="report_title" class="text-lg font-extrabold text-blue-900 mt-1 uppercase"></h1>
+                            </div>
+                        </div>
+
+                        <!-- Metadata Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-lg border">
+                            <div><strong class="block text-slate-500">Investigador:</strong> <span id="rep_inv"></span></div>
+                            <div><strong class="block text-slate-500">Línea:</strong> <span id="rep_lin"></span></div>
+                            <div><strong class="block text-slate-500">Institución:</strong> <span id="rep_inst"></span></div>
+                            <div><strong class="block text-slate-500">Ámbito / Año:</strong> <span id="rep_lugar_anio"></span></div>
+                        </div>
+
+                        <!-- Complete Text Summary Tabs/Sections -->
+                        <div class="space-y-4 text-xs">
+                            <div class="border-b pb-2">
+                                <h4 class="font-bold text-sm text-slate-800 uppercase">1. Problema de Investigación</h4>
+                                <p class="mt-1"><strong>General:</strong> <span id="rep_pg"></span></p>
+                                <div class="mt-2">
+                                    <strong>Específicos:</strong>
+                                    <ul id="rep_pe_list" class="list-disc pl-5 mt-1 space-y-0.5"></ul>
+                                </div>
+                            </div>
+
+                            <div class="border-b pb-2">
+                                <h4 class="font-bold text-sm text-slate-800 uppercase">2. Objetivos de Investigación</h4>
+                                <p class="mt-1"><strong>General:</strong> <span id="rep_og"></span></p>
+                                <div class="mt-2">
+                                    <strong>Específicos:</strong>
+                                    <ul id="rep_oe_list" class="list-disc pl-5 mt-1 space-y-0.5"></ul>
+                                </div>
+                            </div>
+
+                            <div class="border-b pb-2">
+                                <h4 class="font-bold text-sm text-slate-800 uppercase">3. Hipótesis</h4>
+                                <p class="mt-1"><strong>Hipótesis General ($H_1$):</strong> <span id="rep_hg"></span></p>
+                                <p class="mt-1"><strong>Hipótesis Nula ($H_0$):</strong> <span id="rep_h0"></span></p>
+                                <div class="mt-2">
+                                    <strong>Hipótesis Específicas:</strong>
+                                    <ul id="rep_he_list" class="list-disc pl-5 mt-1 space-y-0.5"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-start pt-4">
+                    <button onclick="switchModule(10)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-2xl flex items-center space-x-3 transition-all duration-300 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMessage" class="text-xs font-medium">Operación completada exitosamente</span>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        /**
+         * INVESTIGA PRO - Application State
+         */
+        const state = {
+            currentModule: 1,
+            isUnasamMode: false,
+            scope: 'correlational', // descriptive, correlational, causal, comparative
+            investigacion: {
+                investigador: 'Juan Pérez Rosales',
+                universidad: 'Universidad Nacional Santiago Antúnez de Mayolo',
+                facultad: 'Ciencias de la Administración y Contabilidad',
+                escuela: 'Administración',
+                linea: 'Gestión Empresarial y Desarrollo Organizacional',
+                institucion: 'Municipalidad Provincial de Huaraz',
+                poblacion: 'Trabajadores administrativos',
+                lugar: 'Huaraz',
+                anio: '2026'
+            },
+            v1: {
+                name: 'Gestión administrativa',
+                defConceptual: '',
+                defOperacional: '',
+                dimensions: [
+                    { id: 1, name: 'Planificación', indicators: ['Planes operativos', 'Metas institucionales'] },
+                    { id: 2, name: 'Organización', indicators: ['Asignación de funciones', 'Estructura orgánica'] },
+                    { id: 3, name: 'Dirección', indicators: ['Liderazgo', 'Comunicación interna'] },
+                    { id: 4, name: 'Control', indicators: ['Supervisión', 'Evaluación del desempeño'] }
+                ]
+            },
+            v2: {
+                name: 'Desempeño laboral',
+                defConceptual: '',
+                defOperacional: '',
+                dimensions: [
+                    { id: 1, name: 'Productividad', indicators: ['Volumen de trabajo', 'Cumplimiento de plazos'] },
+                    { id: 2, name: 'Eficiencia', indicators: ['Uso de recursos', 'Optimización del tiempo'] },
+                    { id: 3, name: 'Calidad del trabajo', indicators: ['Precisión de tareas', 'Satisfacción del usuario'] },
+                    { id: 4, name: 'Cumplimiento de objetivos', indicators: ['Logro de metas', 'Compromiso'] }
+                ]
+            },
+            selectedTitle: '',
+            matrixMappings: [], // Array mapping V1 dim -> V2 dim
+            generalVerb: 'Determinar',
+            specificVerbs: [],
+            auditResults: []
+        };
+
+        // PRESET SCENARIOS
+        const presets = {
+            correlational_unasam: {
+                isUnasamMode: true,
+                scope: 'correlational',
+                investigacion: {
+                    investigador: 'Carlos Mendoza Vega',
+                    universidad: 'Universidad Nacional Santiago Antúnez de Mayolo',
+                    facultad: 'Ciencias de la Administración y Contabilidad',
+                    escuela: 'Administración',
+                    linea: 'Gestión Pública y Gobernanza',
+                    institucion: 'Gobierno Regional de Ancash',
+                    poblacion: 'Servidores públicos',
+                    lugar: 'Huaraz',
+                    anio: '2026'
+                },
+                v1: {
+                    name: 'Gestión administrativa',
+                    dimensions: [
+                        { id: 1, name: 'Planificación', indicators: ['Planes de trabajo', 'Presupuesto'] },
+                        { id: 2, name: 'Organización', indicators: ['División de tareas', 'Organigrama'] },
+                        { id: 3, name: 'Dirección', indicators: ['Liderazgo', 'Toma de decisiones'] },
+                        { id: 4, name: 'Control', indicators: ['Auditoría', 'Monitoreo'] }
+                    ]
+                },
+                v2: {
+                    name: 'Desempeño laboral',
+                    dimensions: [
+                        { id: 1, name: 'Productividad', indicators: ['Efectividad', 'Puntualidad'] },
+                        { id: 2, name: 'Eficiencia', indicators: ['Ahorro de insumos', 'Tiempos de respuesta'] },
+                        { id: 3, name: 'Calidad de servicio', indicators: ['Atención al ciudadano', 'Cero errores'] },
+                        { id: 4, name: 'Cumplimiento de metas', indicators: ['Avance físico', 'Avance financiero'] }
+                    ]
+                }
+            },
+            causal_business: {
+                isUnasamMode: false,
+                scope: 'causal',
+                investigacion: {
+                    investigador: 'Ana María Torres',
+                    universidad: 'Universidad Nacional Mayor de San Marcos',
+                    facultad: 'Ciencias Administrativas',
+                    escuela: 'Marketing',
+                    linea: 'Marketing Digital y Ventas',
+                    institucion: 'Empresa Retail Soluciones S.A.C.',
+                    poblacion: 'Clientes recurrentes',
+                    lugar: 'Lima Metropoliana',
+                    anio: '2026'
+                },
+                v1: {
+                    name: 'Marketing digital',
+                    dimensions: [
+                        { id: 1, name: 'Publicidad en redes', indicators: ['Alcance', 'CTR'] },
+                        { id: 2, name: 'Inbound marketing', indicators: ['Leads generados', 'Contenido de valor'] }
+                    ]
+                },
+                v2: {
+                    name: 'Ventas corporativas',
+                    dimensions: [
+                        { id: 1, name: 'Conversión de clientes', indicators: ['Ventas cerradas', 'Ticket promedio'] },
+                        { id: 2, name: 'Fidelización', indicators: ['Tasa de recompra', 'NPS'] }
+                    ]
+                }
+            },
+            descriptive_health: {
+                isUnasamMode: false,
+                scope: 'descriptive',
+                investigacion: {
+                    investigador: 'Dra. Elena Ramos',
+                    universidad: 'Universidad Nacional del Santa',
+                    facultad: 'Ciencias de la Salud',
+                    escuela: 'Enfermería',
+                    linea: 'Salud Ocupacional',
+                    institucion: 'Hospital Víctor Ramos Guardia',
+                    poblacion: 'Personal de enfermería',
+                    lugar: 'Huaraz',
+                    anio: '2026'
+                },
+                v1: {
+                    name: 'Clima organizacional',
+                    dimensions: [
+                        { id: 1, name: 'Estructura organizativa', indicators: ['Reglamentos', 'Supervisión'] },
+                        { id: 2, name: 'Recompensa e incentivos', indicators: ['Bonos', 'Reconocimiento'] },
+                        { id: 3, name: 'Relaciones interpersonales', indicators: ['Trabajo en equipo', 'Confianza'] }
+                    ]
+                },
+                v2: {
+                    name: '',
+                    dimensions: []
+                }
+            },
+            unequal_dims: {
+                isUnasamMode: false,
+                scope: 'correlational',
+                investigacion: {
+                    investigador: 'Luis Alberto Guerrero',
+                    universidad: 'Universidad Nacional de Educación Enrique Guzmán y Valle',
+                    facultad: 'Pedagogía',
+                    escuela: 'Educación Secundaria',
+                    linea: 'Tecnología Educativa',
+                    institucion: 'Institución Educativa Emblemática Toribio de Luzuriaga',
+                    poblacion: 'Estudiantes del 5to año de secundaria',
+                    lugar: 'Huaraz',
+                    anio: '2026'
+                },
+                v1: {
+                    name: 'Uso de plataformas virtuales',
+                    dimensions: [
+                        { id: 1, name: 'Frecuencia de acceso', indicators: ['Horas semanales', 'Sesiones completadas'] },
+                        { id: 2, name: 'Interacción con herramientas', indicators: ['Foros', 'Cuestionarios en línea'] }
+                    ]
+                },
+                v2: {
+                    name: 'Rendimiento académico',
+                    dimensions: [
+                        { id: 1, name: 'Comprensión lectora', indicators: ['Calificación en evaluaciones'] },
+                        { id: 2, name: 'Razonamiento matemático', indicators: ['Resolución de problemas'] },
+                        { id: 3, name: 'Pensamiento crítico', indicators: ['Ensayos formulados'] }
+                    ]
+                }
+            }
+        };
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDimensions(1);
+            renderDimensions(2);
+            runDiagnostic();
+            triggerAutoUpdates();
+            
+            // Mobile Menu Toggle
+            document.getElementById('mobileMenuToggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('-translate-x-full');
+            });
+        });
+
+        // MODULE NAVIGATION SWITCHER
+        function switchModule(modNum) {
+            state.currentModule = modNum;
+
+            // Update Nav styles
+            for (let i = 1; i <= 11; i++) {
+                const navItem = document.getElementById(`nav-mod-${i}`);
+                const modContent = document.getElementById(`module-${i}`);
+
+                if (i === modNum) {
+                    navItem.className = 'nav-item flex items-center px-3 py-2.5 rounded-lg text-white bg-blue-600 shadow-sm transition';
+                    modContent.classList.remove('hidden');
+                } else {
+                    navItem.className = 'nav-item flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition';
+                    modContent.classList.add('hidden');
+                }
+            }
+
+            // Update Header Name & Progress Bar
+            const titles = [
+                "1. Datos Generales de la Investigación",
+                "2. Registro de Variables & Dimensiones",
+                "3. Diagnóstico del Alcance Metodológico",
+                "4. Generador Automático de Título",
+                "5. Preguntas de Investigación & Matriz",
+                "6. Objetivos & Verbos Taxonómicos",
+                "7. Formulación de Hipótesis (H1 y H0)",
+                "8. Matriz de Consistencia Científica",
+                "9. Operacionalización de Variables",
+                "10. Auditoría Metodológica Inteligente",
+                "11. Resumen, Exportación & Proyectos"
+            ];
+            document.getElementById('currentModuleName').innerText = titles[modNum - 1];
+            document.getElementById('progressBar').style.width = `${(modNum / 11) * 100}%`;
+
+            // Dynamic updates dependent on steps
+            if (modNum === 4) generateTitleAlternatives();
+            if (modNum === 5) renderQuestionsModule();
+            if (modNum === 6) generateObjectives();
+            if (modNum === 7) generateHypotheses();
+            if (modNum === 8) renderMatrizConsistencia();
+            if (modNum === 9) renderOperacionalizacion();
+            if (modNum === 10) runAudit();
+            if (modNum === 11) renderExportableReport();
+        }
+
+        // UNASAM MODE TOGGLE
+        function toggleUnasamMode(enabled) {
+            state.isUnasamMode = enabled;
+            const badge = document.getElementById('unasamBadge');
+            const notice = document.getElementById('unasamTitleNotice');
+            if (enabled) {
+                badge.classList.remove('hidden');
+                notice.classList.remove('hidden');
+                state.investigacion.universidad = "Universidad Nacional Santiago Antúnez de Mayolo";
+                document.getElementById('m1_universidad').value = state.investigacion.universidad;
+            } else {
+                badge.classList.add('hidden');
+                notice.classList.add('hidden');
+            }
+            triggerAutoUpdates();
+            showToast(enabled ? "Modalidad UNASAM Activada" : "Modalidad Estándar Activada");
+        }
+
+        // READ INPUTS & TRIGGER AUTOMATIC SYNCHRONIZATION
+        function readGeneralInputs() {
+            state.investigacion.investigador = document.getElementById('m1_investigador').value.trim();
+            state.investigacion.universidad = document.getElementById('m1_universidad').value.trim();
+            state.investigacion.facultad = document.getElementById('m1_facultad').value.trim();
+            state.investigacion.escuela = document.getElementById('m1_escuela').value.trim();
+            state.investigacion.linea = document.getElementById('m1_linea').value.trim();
+            state.investigacion.institucion = document.getElementById('m1_institucion').value.trim();
+            state.investigacion.poblacion = document.getElementById('m1_poblacion').value.trim();
+            state.investigacion.lugar = document.getElementById('m1_lugar').value.trim();
+            state.investigacion.anio = document.getElementById('m1_anio').value.trim();
+
+            state.v1.name = document.getElementById('v1_name').value.trim();
+            state.v1.defConceptual = document.getElementById('v1_def_conceptual').value.trim();
+            state.v1.defOperacional = document.getElementById('v1_def_operacional').value.trim();
+
+            state.v2.name = document.getElementById('v2_name').value.trim();
+            state.v2.defConceptual = document.getElementById('v2_def_conceptual').value.trim();
+            state.v2.defOperacional = document.getElementById('v2_def_operacional').value.trim();
+        }
+
+        function triggerAutoUpdates() {
+            readGeneralInputs();
+            syncMatrixMappings();
+        }
+
+        // DYNAMIC DIMENSIONS HANDLERS
+        function renderDimensions(varNum) {
+            const container = document.getElementById(`v${varNum}_dimensions_container`);
+            const dims = varNum === 1 ? state.v1.dimensions : state.v2.dimensions;
+            container.innerHTML = '';
+
+            dims.forEach((dim, idx) => {
+                const div = document.createElement('div');
+                div.className = "p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2";
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-500">Dimensión ${idx + 1}</span>
+                        <button onclick="removeDimension(${varNum}, ${dim.id})" class="text-xs text-red-500 hover:text-red-700">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <input type="text" value="${dim.name}" oninput="updateDimName(${varNum}, ${dim.id}, this.value)" 
+                           class="w-full text-xs font-medium p-2 border border-slate-300 rounded bg-white outline-none focus:ring-1 focus:ring-blue-500" placeholder="Nombre de la dimensión">
+                    <input type="text" value="${dim.indicators ? dim.indicators.join(', ') : ''}" oninput="updateDimIndicators(${varNum}, ${dim.id}, this.value)" 
+                           class="w-full text-[11px] p-1.5 border border-slate-200 rounded bg-white outline-none text-slate-600" placeholder="Indicadores (separados por coma)">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addDimension(varNum) {
+            const dims = varNum === 1 ? state.v1.dimensions : state.v2.dimensions;
+            const newId = Date.now();
+            dims.push({ id: newId, name: `Dimensión ${dims.length + 1}`, indicators: [] });
+            renderDimensions(varNum);
+            triggerAutoUpdates();
+        }
+
+        function removeDimension(varNum, id) {
+            let dims = varNum === 1 ? state.v1.dimensions : state.v2.dimensions;
+            if (dims.length <= 1) {
+                showToast("Debe existir al menos una dimensión por variable", true);
+                return;
+            }
+            if (varNum === 1) state.v1.dimensions = dims.filter(d => d.id !== id);
+            else state.v2.dimensions = dims.filter(d => d.id !== id);
+            renderDimensions(varNum);
+            triggerAutoUpdates();
+        }
+
+        function updateDimName(varNum, id, val) {
+            const dims = varNum === 1 ? state.v1.dimensions : state.v2.dimensions;
+            const dim = dims.find(d => d.id === id);
+            if (dim) dim.name = val;
+            triggerAutoUpdates();
+        }
+
+        function updateDimIndicators(varNum, id, val) {
+            const dims = varNum === 1 ? state.v1.dimensions : state.v2.dimensions;
+            const dim = dims.find(d => d.id === id);
+            if (dim) dim.indicators = val.split(',').map(s => s.trim()).filter(Boolean);
+            triggerAutoUpdates();
+        }
+
+        // MODULE 3: DIAGNOSTIC LOGIC & METHODOLOGICAL WARNINGS
+        function runDiagnostic() {
+            const q1Val = document.querySelector('input[name="diag_q1"]:checked')?.value || 'correlational';
+            const expChecked = document.getElementById('diag_exp')?.checked || false;
+            const tempChecked = document.getElementById('diag_temp')?.checked || false;
+            const controlChecked = document.getElementById('diag_control')?.checked || false;
+
+            state.scope = q1Val;
+
+            const card = document.getElementById('diagnosticResultCard');
+            let resultHTML = '';
+
+            if (q1Val === 'causal') {
+                const hasRigor = expChecked && tempChecked && controlChecked;
+                if (!hasRigor) {
+                    resultHTML = `
+                        <div class="flex items-start space-x-3 text-amber-900">
+                            <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-600 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-sm uppercase">¡Advertencia Metodológica de Causalidad!</h4>
+                                <p class="text-xs mt-1">Ha seleccionado un alcance <strong>Explicativo/Causal</strong>. Sin embargo, no ha marcado los tres criterios esenciales de rigor (manipulación experimental, orden temporal y control de extrañas).</p>
+                                <p class="text-xs mt-2 font-semibold bg-amber-100 p-2 rounded text-amber-900 border border-amber-300">
+                                    <i class="fa-solid fa-lightbulb mr-1"></i> Sugerencia: En Ciencias Sociales y Administración, el mero uso de palabras como "influencia" o "efecto" en estudios no experimentales no justifica la causalidad estricta. Se recomienda reformular a un alcance <strong>Correlacional / Asociativo</strong>.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultHTML = `
+                        <div class="flex items-start space-x-3 text-emerald-900">
+                            <i class="fa-solid fa-shield-halved text-2xl text-emerald-600 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-sm uppercase">Diagnóstico Validado: Investigación Explicativa / Causal</h4>
+                                <p class="text-xs mt-1">El diseño metodológico cuenta con el soporte experimental y de control adecuado para analizar la causalidad de $V_1$ sobre $V_2$.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else if (q1Val === 'correlational') {
+                resultHTML = `
+                    <div class="flex items-start space-x-3 text-blue-900">
+                        <i class="fa-solid fa-circle-info text-2xl text-blue-600 mt-1"></i>
+                        <div>
+                            <h4 class="font-bold text-sm uppercase">Diagnóstico: Investigación Correlacional</h4>
+                            <p class="text-xs mt-1">El estudio busca medir el grado de asociación o covariación estadística entre <strong>${state.v1.name}</strong> y <strong>${state.v2.name}</strong>, sin asumir causalidad unívoca no demostrada.</p>
+                        </div>
+                    </div>
+                `;
+            } else if (q1Val === 'descriptive') {
+                resultHTML = `
+                    <div class="flex items-start space-x-3 text-indigo-900">
+                        <i class="fa-solid fa-chart-simple text-2xl text-indigo-600 mt-1"></i>
+                        <div>
+                            <h4 class="font-bold text-sm uppercase">Diagnóstico: Investigación Descriptiva</h4>
+                            <p class="text-xs mt-1">El estudio se centrará en describir las características y rasgos de la variable <strong>${state.v1.name}</strong> en la población de estudio.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultHTML = `
+                    <div class="flex items-start space-x-3 text-purple-900">
+                        <i class="fa-solid fa-code-compare text-2xl text-purple-600 mt-1"></i>
+                        <div>
+                            <h4 class="font-bold text-sm uppercase">Diagnóstico: Investigación Comparativa</h4>
+                            <p class="text-xs mt-1">Se evaluará si existen diferencias significativas en las variables entre dos o más grupos o contextos.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = resultHTML;
+        }
+
+        // MODULE 4: AUTOMATIC TITLE GENERATOR
+        function generateTitleAlternatives() {
+            triggerAutoUpdates();
+            const { v1, v2, investigacion, scope } = state;
+            const container = document.getElementById('titleAlternativesContainer');
+            container.innerHTML = '';
+
+            const alt1 = `${v1.name} y ${v2.name || ''} en ${investigacion.poblacion} de ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}`;
+            const alt2 = `Influencia de la ${v1.name} en la ${v2.name || ''} de ${investigacion.poblacion} de ${investigacion.institucion}, ${investigacion.anio}`;
+            const alt3 = `Análisis descriptivo de ${v1.name} en el contexto de ${investigacion.institucion}, ${investigacion.lugar} - ${investigacion.anio}`;
+
+            const alternatives = [
+                { title: cleanTitle(alt1), type: 'Correlacional / Asociativo', rec: 'Ideal para investigaciones de nivel correlacional estándar.' },
+                { title: cleanTitle(alt2), type: 'Explicativo / Causal', rec: 'Usar únicamente si existe diseño explicativo formal o experimental.' },
+                { title: cleanTitle(alt3), type: 'Descriptivo / Diagnóstico', rec: 'Recomendado para caracterizar una variable de estudio.' }
+            ];
+
+            alternatives.forEach((item, index) => {
+                let formattedTitle = item.title;
+                if (state.isUnasamMode) {
+                    formattedTitle = formattedTitle.toUpperCase();
+                }
+
+                const card = document.createElement('div');
+                card.className = "p-4 border border-slate-200 rounded-xl hover:border-blue-500 bg-white shadow-sm transition cursor-pointer";
+                card.onclick = () => selectTitle(formattedTitle);
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-slate-100 text-slate-700 rounded">Opción ${index + 1} (${item.type})</span>
+                        <span class="text-xs text-blue-600 font-semibold hover:underline">Seleccionar <i class="fa-solid fa-check ml-1"></i></span>
+                    </div>
+                    <p class="text-sm font-bold text-slate-900">${formattedTitle}</p>
+                    <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> ${item.rec}</p>
+                `;
+                container.appendChild(card);
+            });
+
+            if (!state.selectedTitle) {
+                selectTitle(state.isUnasamMode ? cleanTitle(alt1).toUpperCase() : cleanTitle(alt1));
+            }
+        }
+
+        function cleanTitle(str) {
+            return str.replace(/\s+/g, ' ').trim();
+        }
+
+        function selectTitle(titleText) {
+            state.selectedTitle = titleText;
+            document.getElementById('finalTitleInput').value = titleText;
+            showToast("Título seleccionado activado");
+        }
+
+        function saveManualTitle() {
+            state.selectedTitle = document.getElementById('finalTitleInput').value;
+        }
+
+        // MODULE 5: QUESTIONS & DIMENSION MAPPING MATRIX
+        function syncMatrixMappings() {
+            const v1Dims = state.v1.dimensions;
+            const v2Dims = state.v2.dimensions;
+
+            // Auto-link dimensions up to the min length or pairwise
+            state.matrixMappings = v1Dims.map((d1, i) => {
+                const targetV2Dim = v2Dims[i] ? v2Dims[i].name : (v2Dims[0]?.name || '');
+                return {
+                    v1Dim: d1.name,
+                    v2Dim: targetV2Dim
+                };
+            });
+        }
+
+        function renderQuestionsModule() {
+            triggerAutoUpdates();
+            const { v1, v2, investigacion, scope } = state;
+
+            // Formulate General Question
+            let qGen = "";
+            if (scope === 'causal') {
+                qGen = `¿En qué medida la ${v1.name} influye en la ${v2.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}?`;
+            } else if (scope === 'descriptive') {
+                qGen = `¿Cuáles son las características de la ${v1.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}?`;
+            } else {
+                qGen = `¿Cuál es la relación que existe entre la ${v1.name} y la ${v2.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}?`;
+            }
+            document.getElementById('generalQuestionDisplay').innerText = qGen;
+
+            // Specific Questions Matrix Rows
+            const matrixContainer = document.getElementById('specificQuestionsMatrix');
+            matrixContainer.innerHTML = '';
+
+            state.matrixMappings.forEach((map, index) => {
+                const row = document.createElement('div');
+                row.className = "p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-3";
+                
+                let v2SelectorHTML = '';
+                if (state.scope !== 'descriptive' && v2.dimensions.length > 0) {
+                    v2SelectorHTML = `
+                        <span class="text-xs text-slate-400">con</span>
+                        <select onchange="updateMappingTarget(${index}, this.value)" class="text-xs p-1.5 border border-slate-300 rounded bg-white text-slate-800 font-medium">
+                            ${v2.dimensions.map(d => `<option value="${d.name}" ${d.name === map.v2Dim ? 'selected' : ''}>${d.name}</option>`).join('')}
+                        </select>
+                    `;
+                }
+
+                let qSpecText = "";
+                if (state.scope === 'causal') {
+                    qSpecText = `¿Cómo influye la dimensión ${map.v1Dim} en la dimensión ${map.v2Dim}?`;
+                } else if (state.scope === 'descriptive') {
+                    qSpecText = `¿Cómo se presenta la dimensión ${map.v1Dim} en la población de estudio?`;
+                } else {
+                    qSpecText = `¿Qué relación existe entre la dimensión ${map.v1Dim} y la dimensión ${map.v2Dim}?`;
+                }
+
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2 text-xs">
+                        <span class="font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">P.E. ${index + 1}</span>
+                        <span class="font-semibold text-slate-800">${map.v1Dim}</span>
+                        ${v2SelectorHTML}
+                    </div>
+                    <div class="text-xs font-semibold text-slate-700 italic bg-white p-2 rounded border w-full md:w-1/2">
+                        "${qSpecText}"
+                    </div>
+                `;
+                matrixContainer.appendChild(row);
+            });
+        }
+
+        function updateMappingTarget(index, val) {
+            state.matrixMappings[index].v2Dim = val;
+            renderQuestionsModule();
+        }
+
+        // MODULE 6: OBJECTIVES & TAXONOMIC VERBS
+        function generateObjectives() {
+            triggerAutoUpdates();
+            const { v1, v2, investigacion, scope } = state;
+            const verbG = document.getElementById('verb_general').value;
+            state.generalVerb = verbG;
+
+            let objGenText = "";
+            if (scope === 'causal') {
+                objGenText = `${verbG} la influencia de la ${v1.name} en la ${v2.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}.`;
+            } else if (scope === 'descriptive') {
+                objGenText = `${verbG} las características de la ${v1.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}.`;
+            } else {
+                objGenText = `${verbG} la relación entre la ${v1.name} y la ${v2.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.lugar}, ${investigacion.anio}.`;
+            }
+            document.getElementById('obj_general_text').value = objGenText;
+
+            // Specific Objectives
+            const container = document.getElementById('specificObjectivesContainer');
+            container.innerHTML = '';
+            state.specificVerbs = [];
+
+            state.matrixMappings.forEach((map, index) => {
+                const defaultVerb = (scope === 'descriptive') ? 'Describir' : 'Determinar';
+                state.specificVerbs.push(defaultVerb);
+
+                let objSpecText = "";
+                if (scope === 'causal') {
+                    objSpecText = `${defaultVerb} el efecto de ${map.v1Dim} en ${map.v2Dim}.`;
+                } else if (scope === 'descriptive') {
+                    objSpecText = `${defaultVerb} el comportamiento de la dimensión ${map.v1Dim}.`;
+                } else {
+                    objSpecText = `${defaultVerb} la relación entre ${map.v1Dim} y ${map.v2Dim}.`;
+                }
+
+                const div = document.createElement('div');
+                div.className = "p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center space-x-3";
+                div.innerHTML = `
+                    <span class="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded">O.E. ${index + 1}</span>
+                    <input type="text" id="obj_spec_${index}" value="${objSpecText}" class="flex-1 text-xs font-medium p-2 border border-slate-300 rounded bg-white outline-none">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // MODULE 7: HYPOTHESES FORMULATION
+        function generateHypotheses() {
+            triggerAutoUpdates();
+            const { v1, v2, investigacion, scope } = state;
+            const noticeContainer = document.getElementById('hypothesesNotice');
+
+            if (scope === 'descriptive') {
+                noticeContainer.innerHTML = `
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                        <i class="fa-solid fa-circle-info mr-1"></i> <strong>Nota Metodológica:</strong> Las investigaciones puramente descriptivas por lo general <strong>NO requieren hipótesis explícitas</strong>, a menos que se realice una estimación cuantitativa previa.
+                    </div>
+                `;
+            } else {
+                noticeContainer.innerHTML = '';
+            }
+
+            let h1Gen = "";
+            let h0Gen = "";
+
+            if (scope === 'causal') {
+                h1Gen = `La ${v1.name} influye significativamente en la ${v2.name} de los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.anio}.`;
+                h0Gen = `La ${v1.name} NO influye significativamente en la ${v2.name} de los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.anio}.`;
+            } else {
+                h1Gen = `Existe una relación significativa entre la ${v1.name} y la ${v2.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.anio}.`;
+                h0Gen = `NO existe una relación significativa entre la ${v1.name} y la ${v2.name} en los ${investigacion.poblacion} de la ${investigacion.institucion}, ${investigacion.anio}.`;
+            }
+
+            document.getElementById('h1_general').value = h1Gen;
+            document.getElementById('h0_general').value = h0Gen;
+
+            // Specific Hypotheses
+            const container = document.getElementById('specificHypothesesContainer');
+            container.innerHTML = '';
+
+            state.matrixMappings.forEach((map, index) => {
+                let hSpecText = "";
+                if (scope === 'causal') {
+                    hSpecText = `La dimensión ${map.v1Dim} influye significativamente en la dimensión ${map.v2Dim}.`;
+                } else if (scope === 'descriptive') {
+                    hSpecText = `La dimensión ${map.v1Dim} se presenta en un nivel predominantemente alto.`;
+                } else {
+                    hSpecText = `Existe una relación significativa entre la dimensión ${map.v1Dim} y la dimensión ${map.v2Dim}.`;
+                }
+
+                const div = document.createElement('div');
+                div.className = "p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center space-x-3";
+                div.innerHTML = `
+                    <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">H.E. ${index + 1}</span>
+                    <input type="text" id="h_spec_${index}" value="${hSpecText}" class="flex-1 text-xs font-medium p-2 border border-slate-300 rounded bg-white outline-none">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // MODULE 8: MATRIZ DE CONSISTENCIA
+        function renderMatrizConsistencia() {
+            triggerAutoUpdates();
+            const tbody = document.getElementById('matrizTbody');
+            tbody.innerHTML = '';
+
+            const qGen = document.getElementById('generalQuestionDisplay').innerText;
+            const objGen = document.getElementById('obj_general_text').value;
+            const h1Gen = document.getElementById('h1_general').value;
+
+            // General Row
+            const trGen = document.createElement('tr');
+            trGen.className = "bg-blue-50/50 font-semibold border-b border-slate-200";
+            trGen.innerHTML = `
+                <td class="p-3 border-r border-slate-200"><strong>PROBLEMA GENERAL:</strong><br>${qGen}</td>
+                <td class="p-3 border-r border-slate-200"><strong>OBJETIVO GENERAL:</strong><br>${objGen}</td>
+                <td class="p-3 border-r border-slate-200"><strong>HIPÓTESIS GENERAL:</strong><br>${h1Gen}</td>
+                <td class="p-3 border-r border-slate-200">
+                    <strong>V1:</strong> ${state.v1.name}<br>
+                    ${state.v2.name ? `<strong>V2:</strong> ${state.v2.name}` : ''}
+                </td>
+                <td class="p-3">
+                    <strong>Alcance:</strong> ${state.scope.toUpperCase()}<br>
+                    <strong>Población:</strong> ${state.investigacion.poblacion}
+                </td>
+            `;
+            tbody.appendChild(trGen);
+
+            // Specific Rows
+            state.matrixMappings.forEach((map, idx) => {
+                const objSpecVal = document.getElementById(`obj_spec_${idx}`)?.value || `Determinar relación de ${map.v1Dim}`;
+                const hSpecVal = document.getElementById(`h_spec_${idx}`)?.value || `Existe relación entre ${map.v1Dim} y ${map.v2Dim}`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-200";
+                tr.innerHTML = `
+                    <td class="p-3 border-r border-slate-200"><strong>P.E. ${idx + 1}:</strong> ¿Relación entre ${map.v1Dim} y ${map.v2Dim}?</td>
+                    <td class="p-3 border-r border-slate-200"><strong>O.E. ${idx + 1}:</strong> ${objSpecVal}</td>
+                    <td class="p-3 border-r border-slate-200"><strong>H.E. ${idx + 1}:</strong> ${hSpecVal}</td>
+                    <td class="p-3 border-r border-slate-200">
+                        <strong>Dim V1:</strong> ${map.v1Dim}<br>
+                        ${map.v2Dim ? `<strong>Dim V2:</strong> ${map.v2Dim}` : ''}
+                    </td>
+                    <td class="p-3 text-slate-500">Diseño No Experimental / Transversal</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // MODULE 9: OPERACIONALIZACIÓN DE VARIABLES
+        function renderOperacionalizacion() {
+            triggerAutoUpdates();
+            const container = document.getElementById('operacionalizacionTablesContainer');
+            container.innerHTML = '';
+
+            const renderVarTable = (v, title, badgeColor) => {
+                if (!v.name) return;
+                const div = document.createElement('div');
+                div.className = "space-y-3";
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded text-white ${badgeColor}">${title}</span>
+                        <h4 class="text-sm font-bold text-slate-800">${v.name}</h4>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                        <table class="w-full text-xs text-left text-slate-700 border-collapse min-w-[700px]">
+                            <thead class="bg-slate-100 uppercase text-[10px] font-bold tracking-wider text-slate-600">
+                                <tr>
+                                    <th class="p-2.5 border-b border-r">Variable</th>
+                                    <th class="p-2.5 border-b border-r">Definición Conceptual</th>
+                                    <th class="p-2.5 border-b border-r">Definición Operacional</th>
+                                    <th class="p-2.5 border-b border-r">Dimensiones</th>
+                                    <th class="p-2.5 border-b border-r">Indicadores</th>
+                                    <th class="p-2.5 border-b">Escala de Medición</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${v.dimensions.map((dim, i) => `
+                                    <tr class="border-b hover:bg-slate-50">
+                                        ${i === 0 ? `<td rowspan="${v.dimensions.length}" class="p-3 font-semibold border-r bg-slate-50/50 align-top">${v.name}</td>` : ''}
+                                        ${i === 0 ? `<td rowspan="${v.dimensions.length}" class="p-3 border-r align-top text-slate-500">${v.defConceptual || 'Pendiente de definición formal.'}</td>` : ''}
+                                        ${i === 0 ? `<td rowspan="${v.dimensions.length}" class="p-3 border-r align-top text-slate-500">${v.defOperacional || 'Medición mediante escala Ordinal (Likert).'}</td>` : ''}
+                                        <td class="p-3 font-medium border-r text-blue-900">${dim.name}</td>
+                                        <td class="p-3 border-r text-slate-600">${dim.indicators && dim.indicators.length ? dim.indicators.join(', ') : '<span class="text-amber-600 italic">Propuesta pendiente</span>'}</td>
+                                        <td class="p-3">Ordinal (Escala de Likert)</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(div);
+            };
+
+            renderVarTable(state.v1, "VARIABLE 1", "bg-blue-600");
+            renderVarTable(state.v2, "VARIABLE 2", "bg-indigo-600");
+        }
+
+        // MODULE 10: INTELLIGENT METHODOLOGICAL AUDITOR
+        function runAudit() {
+            triggerAutoUpdates();
+            const container = document.getElementById('auditResultsContainer');
+            container.innerHTML = '';
+
+            const checks = [];
+            const { v1, v2, investigacion, scope, selectedTitle } = state;
+
+            // 1. Title Coherence
+            const titleHasV1 = selectedTitle.toLowerCase().includes(v1.name.toLowerCase());
+            checks.push({
+                title: "Coherencia Título - Variable 1",
+                status: titleHasV1 ? "pass" : "fail",
+                msg: titleHasV1 ? "El título contiene explícitamente el nombre de la Variable 1." : "El título no parece incluir la Variable 1 principal."
+            });
+
+            // 2. Delimitation
+            const hasDelim = investigacion.institucion && investigacion.lugar && investigacion.anio;
+            checks.push({
+                title: "Delimitación Espacio-Temporal",
+                status: hasDelim ? "pass" : "warn",
+                msg: hasDelim ? "Se especificó correctamente la institución, lugar y año." : "Falta precisar el lugar o año de investigación."
+            });
+
+            // 3. Scope vs Verbs
+            const verbG = state.generalVerb;
+            const scopeVerbMatch = (scope === 'causal' && ['Explicar', 'Evaluar', 'Determinar'].includes(verbG)) ||
+                                   (scope === 'correlational' && ['Determinar', 'Analizar', 'Establecer'].includes(verbG)) ||
+                                   (scope === 'descriptive' && ['Describir', 'Caracterizar', 'Analizar'].includes(verbG));
+            checks.push({
+                title: "Adecuación del Verbo General",
+                status: scopeVerbMatch ? "pass" : "warn",
+                msg: scopeVerbMatch ? `El verbo '${verbG}' es metodológicamente coherente con el alcance ${scope}.` : `El verbo '${verbG}' podría revisarse para ajustarse mejor al alcance ${scope}.`
+            });
+
+            // 4. Dimensions count match
+            const d1Count = v1.dimensions.length;
+            const d2Count = v2.dimensions.length;
+            const equalDims = d1Count === d2Count;
+            checks.push({
+                title: "Simetría de Dimensiones ($V_1$ vs $V_2$)",
+                status: equalDims ? "pass" : "warn",
+                msg: equalDims ? `Ambas variables cuentan con ${d1Count} dimensiones.` : `$V_1$ tiene ${d1Count} dimensiones y $V_2$ tiene ${d2Count}. El sistema aplicó mapeo adaptativo.`
+            });
+
+            // 5. Indicators presence
+            const hasIndicators = v1.dimensions.every(d => d.indicators && d.indicators.length > 0);
+            checks.push({
+                title: "Completitud de Indicadores",
+                status: hasIndicators ? "pass" : "warn",
+                msg: hasIndicators ? "Todas las dimensiones registradas poseen indicadores." : "Existen dimensiones sin indicadores formalizados."
+            });
+
+            // Render Checks
+            let passC = 0, warnC = 0, failC = 0;
+
+            checks.forEach(check => {
+                let badgeClass = "", icon = "";
+                if (check.status === "pass") {
+                    passC++;
+                    badgeClass = "bg-emerald-50 border-emerald-200 text-emerald-900";
+                    icon = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>';
+                } else if (check.status === "warn") {
+                    warnC++;
+                    badgeClass = "bg-amber-50 border-amber-200 text-amber-900";
+                    icon = '<i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg"></i>';
+                } else {
+                    failC++;
+                    badgeClass = "bg-red-50 border-red-200 text-red-900";
+                    icon = '<i class="fa-solid fa-circle-xmark text-red-600 text-lg"></i>';
+                }
+
+                const div = document.createElement('div');
+                div.className = `p-4 border rounded-xl flex items-start space-x-3 ${badgeClass}`;
+                div.innerHTML = `
+                    <div class="mt-0.5">${icon}</div>
+                    <div>
+                        <h5 class="text-xs font-bold uppercase tracking-wider">${check.title}</h5>
+                        <p class="text-xs mt-0.5">${check.msg}</p>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('auditPassCount').innerText = passC;
+            document.getElementById('auditWarnCount').innerText = warnC;
+            document.getElementById('auditFailCount').innerText = failC;
+
+            const badge = document.getElementById('auditBadge');
+            if (failC > 0 || warnC > 0) badge.classList.remove('hidden');
+            else badge.classList.add('hidden');
+        }
+
+        // MODULE 11: FULL REPORT GENERATION
+        function renderExportableReport() {
+            triggerAutoUpdates();
+            const inv = state.investigacion;
+
+            document.getElementById('report_univ').innerText = inv.universidad || 'UNIVERSIDAD';
+            document.getElementById('report_facultad').innerText = inv.facultad || '';
+            document.getElementById('report_escuela').innerText = inv.escuela || '';
+            document.getElementById('report_title').innerText = state.selectedTitle || 'TÍTULO SIN DEFINIR';
+
+            document.getElementById('rep_inv').innerText = inv.investigador;
+            document.getElementById('rep_lin').innerText = inv.linea;
+            document.getElementById('rep_inst').innerText = inv.institucion;
+            document.getElementById('rep_lugar_anio').innerText = `${inv.lugar} (${inv.anio})`;
+
+            document.getElementById('rep_pg').innerText = document.getElementById('generalQuestionDisplay').innerText;
+            document.getElementById('rep_og').innerText = document.getElementById('obj_general_text').value;
+            document.getElementById('rep_hg').innerText = document.getElementById('h1_general').value;
+            document.getElementById('rep_h0').innerText = document.getElementById('h0_general').value;
+
+            // Render lists
+            const peList = document.getElementById('rep_pe_list');
+            const oeList = document.getElementById('rep_oe_list');
+            const heList = document.getElementById('rep_he_list');
+
+            peList.innerHTML = '';
+            oeList.innerHTML = '';
+            heList.innerHTML = '';
+
+            state.matrixMappings.forEach((map, idx) => {
+                const oeVal = document.getElementById(`obj_spec_${idx}`)?.value || '';
+                const heVal = document.getElementById(`h_spec_${idx}`)?.value || '';
+
+                peList.innerHTML += `<li>¿Cómo se relaciona ${map.v1Dim} con ${map.v2Dim}?</li>`;
+                oeList.innerHTML += `<li>${oeVal}</li>`;
+                heList.innerHTML += `<li>${heVal}</li>`;
+            });
+        }
+
+        // PRESET LOADERS
+        function loadPreset(key) {
+            if (!key || !presets[key]) return;
+            const p = presets[key];
+
+            state.isUnasamMode = p.isUnasamMode;
+            document.getElementById('unasamToggle').checked = p.isUnasamMode;
+            toggleUnasamMode(p.isUnasamMode);
+
+            state.scope = p.scope;
+            state.investigacion = { ...p.investigacion };
+
+            // Fill Module 1 inputs
+            document.getElementById('m1_investigador').value = p.investigacion.investigador;
+            document.getElementById('m1_universidad').value = p.investigacion.universidad;
+            document.getElementById('m1_facultad').value = p.investigacion.facultad;
+            document.getElementById('m1_escuela').value = p.investigacion.escuela;
+            document.getElementById('m1_linea').value = p.investigacion.linea;
+            document.getElementById('m1_institucion').value = p.investigacion.institucion;
+            document.getElementById('m1_poblacion').value = p.investigacion.poblacion;
+            document.getElementById('m1_lugar').value = p.investigacion.lugar;
+            document.getElementById('m1_anio').value = p.investigacion.anio;
+
+            // Fill Module 2
+            state.v1 = JSON.parse(JSON.stringify(p.v1));
+            state.v2 = JSON.parse(JSON.stringify(p.v2));
+
+            document.getElementById('v1_name').value = state.v1.name;
+            document.getElementById('v2_name').value = state.v2.name;
+
+            renderDimensions(1);
+            renderDimensions(2);
+            runDiagnostic();
+            triggerAutoUpdates();
+
+            showToast(`Plantilla "${key}" cargada exitosamente`);
+        }
+
+        // LOCAL STORAGE SAVE & RESTORE
+        function saveProject() {
+            triggerAutoUpdates();
+            localStorage.setItem('investiga_pro_project', JSON.stringify(state));
+            showToast("Proyecto guardado en LocalStorage");
+        }
+
+        // EXPORT FUNCTIONS (PDF, EXCEL, WORD, TEXT)
+        function exportMatrixToExcel() {
+            triggerAutoUpdates();
+            const table = document.getElementById('matrizConsistenciaTable');
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Matriz de Consistencia" });
+            XLSX.writeFile(wb, `Matriz_Consistencia_${state.investigacion.anio}.xlsx`);
+            showToast("Matriz exportada a Excel (.xlsx)");
+        }
+
+        function exportToWord() {
+            renderExportableReport();
+            const content = document.getElementById('exportableReportContainer').innerHTML;
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Investigación</title></head><body>";
+            const footer = "</body></html>";
+            const sourceHTML = header + content + footer;
+
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = `Investigacion_Estructura_${state.investigacion.anio}.doc`;
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+            showToast("Informe exportado a Word (.doc)");
+        }
+
+        function exportToPDF() {
+            renderExportableReport();
+            const element = document.getElementById('exportableReportContainer');
+            
+            showToast("Generando archivo PDF...");
+            
+            html2canvas(element, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`Plan_Investigacion_${state.investigacion.anio}.pdf`);
+                showToast("PDF descargado correctamente");
+            });
+        }
+
+        function copyFullReport() {
+            renderExportableReport();
+            const text = document.getElementById('exportableReportContainer').innerText;
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            showToast("Reporte completo copiado al portapapeles");
+        }
+
+        // UTILITY TOAST NOTIFICATION
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const message = document.getElementById('toastMessage');
+
+            message.innerText = msg;
+            if (isError) {
+                icon.className = "fa-solid fa-circle-exclamation text-red-400 text-lg";
+            } else {
+                icon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
